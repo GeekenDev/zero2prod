@@ -32,7 +32,7 @@ async fn main() -> surrealdb::Result<()> {
         password: "root",
     })
     .await?;
-
+  
     // Select a specific namespace / database
     db.use_ns("dev").use_db("dev").await?;
 
@@ -43,7 +43,7 @@ async fn main() -> surrealdb::Result<()> {
         .iter()
         .filter(|user| user.email_verified == Some(true))
         .collect();
-    let mut user = filtered_users[0];
+    let user = filtered_users[0];
     println!("{:?}", user.id.to_raw());
 
     Ok(())
