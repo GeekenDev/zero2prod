@@ -2,17 +2,17 @@
  * Copyright (c) 2023 - Chatter Social, Inc.
  * Created by: Justin B. Watson (Geeken)
  */
-
 use serde::Deserialize;
-use std::fmt::Debug;
+use serde_json::json;
+//use std::fmt::Debug;
 use surrealdb::engine::remote::ws::Wss;
 use surrealdb::opt::auth::Root;
 use surrealdb::sql::Thing;
 use surrealdb::Surreal;
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 struct User {
-    #[allow(dead_code)]
+    // #[allow(dead_code)]
     id: Thing,
     username: String,
     first_name: Option<String>,
@@ -32,7 +32,7 @@ async fn main() -> surrealdb::Result<()> {
         password: "root",
     })
     .await?;
-  
+
     // Select a specific namespace / database
     db.use_ns("dev").use_db("dev").await?;
 
@@ -44,7 +44,17 @@ async fn main() -> surrealdb::Result<()> {
         .filter(|user| user.email_verified == Some(true))
         .collect();
     let user = filtered_users[0];
-    println!("{:?}", user.id.to_raw());
+
+    let obj = json!({
+        "id": user.id.to_raw(),
+        "username": user.username,
+        "email": user.email,
+        "email_verified": user.email_verified,
+        "first_name": user.first_name,
+        "last_name": user.last_name
+    });
+
+    println!("{}", serde_json::to_string_pretty(&obj).unwrap());
 
     Ok(())
 }
